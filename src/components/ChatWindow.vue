@@ -19,7 +19,7 @@
         </span>
         <!-- AI Response -->
         <span v-else v-html="message.message" class="ml-6"></span>
-    </div>
+      </div>
     </div>
 
     <!-- Textarea and send button -->
@@ -50,10 +50,7 @@
 <script setup>
 import { ref } from 'vue'
 import { OpenAI } from 'openai'
-import {useStore} from '@/stores/store'
 import neo4j from 'neo4j-driver'
-
-const store = useStore()
 
 //Initialize Variables
 const inputMessage = ref('')
@@ -108,8 +105,14 @@ async function sendRequest() {
 
         The database structure is:
         - Node label: Nodes
-        - Node properties: id, name, description, label, objectType, centroid, category
-        - centroid is defined as an array [x, y, z]
+        - Node properties: 
+            id: randon string
+            name: 102 | Floor:Concrete- 100mm:212675 | Basic Wall:Exterior - Insulation on Masonry:144837 | etc
+            description, 
+            label: Space | WallStandardCase | Door | Slab | etc, 
+            objectType, 
+            centroid: [x, y, z]
+            category: IfcSpace | IfcWallStandardCase | IfcDoor | IfcFloor etc
         - Relationships: Edges (undirected adjacency between spaces)
 
         When you need data, request it by replying ONLY in this form:
@@ -130,13 +133,13 @@ async function sendRequest() {
 
   try {
     //Iterative create and execute cypher queries.
-    let maxIterations = 8
+    let maxIterations = 10
     for (let step = 0; step < maxIterations; step++) {  
       let response;
       
       try {
         response = await openai.chat.completions.create({
-          model: "gpt-4.1",  
+          model: "gpt-4o-mini",  
           messages: conversation,
         });
       } catch (err) {
@@ -152,6 +155,7 @@ async function sendRequest() {
 
         try {
           const result = await executeNeo4jQuery(cypherQuery);
+          console.log('neo4j result', result)
 
           // Add result to conversation
           conversation.push(
